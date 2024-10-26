@@ -41,6 +41,15 @@ void loop() {
         lcd.print("Temperature:");
         lcd.setCursor(13,0);
         lcd.print(temperature);
+
+        // Turns on relay if humidity is greater than 60
+        if (humidity >= 60) {
+          Serial.println("Turning Relay ON");
+          digitalWrite(4, HIGH);  // Turn relay ON if humidity >= 60
+        }
+        else {
+            digitalWrite(4, LOW);   // Turn relay OFF if humidity < 60
+        }
         
         lcd.setCursor(2,1);
         lcd.print("Humidity: ");
