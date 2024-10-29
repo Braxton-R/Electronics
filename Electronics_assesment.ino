@@ -3,10 +3,17 @@
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 
+// Sets interrupt button to pin 3
+const byte interruptPin = 3;
+volatile byte state = LOW;
+
 // Create an instance of the DHT11 and liquid crystal class.
 DHT11 dht11(2);
   
 LiquidCrystal_I2C lcd(0x27,20,4);
+
+// Global variable to track when the button was last pressed
+unsigned long lastPressed = 0;
 
 void setup() {
   // Initialize serial communication to allow debugging and data readout.
@@ -17,6 +24,10 @@ void setup() {
   lcd.backlight();
   // Relay Pin
   pinMode(4, OUTPUT);
+
+  // Set up for interrupt button
+  pinMode(interruptPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), backlight, RISING);
 }
 
 void loop() {
@@ -62,4 +73,18 @@ void loop() {
         // Print error message based on the error code.
         Serial.println(DHT11::getErrorString(result));
     }
+
+    // Error checking
+    Serial.println(lastPressed);
+    // Sees if it has been more then 5 seconds since button was pressed
+    if (millis() > lastPressed + 5000) {
+      lcd.noBacklight(); // turn off backlight
+    }
+    else {
+      lcd.backlight(); // turn on backlight.
+    }
+}
+
+void backlight() {
+  lastPressed = millis();
 }
